@@ -34,12 +34,19 @@ bool BigReal_Number::isValidReal(string realNumber) {
         if(realNumber.empty()){
             return false;
         }
+        //if the real number contains invalid sign or characters
         for(int i=0;i<realNumber.size();i++){
             if((!isdigit(realNumber[i])&&realNumber[i]!='+'&&realNumber[i]!='-'&&realNumber[i]!='.')){
                 return false;
             }
         }
-        if(!isdigit(realNumber[1])&&(realNumber[0]=='-'||realNumber[0]=='+')){
+        //if the real number starts with a '-' or'+' sign followed by non digit 
+        if((!isdigit(realNumber[1])&&realNumber[1]!='.')&&(realNumber[0]=='-'||realNumber[0]=='+')) {
+            return false;
+
+        }
+        //if the real number contains more than decimal point 
+        if(realNumber.find('.')!= realNumber.rfind('.')){
             return false;
         }
         return true;
