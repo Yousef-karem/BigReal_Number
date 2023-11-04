@@ -31,5 +31,16 @@ BigReal_Number::BigReal_Number(double number)
 }
 
 bool BigReal_Number::isValidReal(string realNumber) {
-    return true;
-}
+        if(realNumber.empty()){
+            return false;
+        }
+        for(int i=0;i<realNumber.size();i++){
+            if((!isdigit(realNumber[i])&&realNumber[i]!='+'&&realNumber[i]!='-'&&realNumber[i]!='.')){
+                return false;
+            }
+        }
+        if(!isdigit(realNumber[1])&&(realNumber[0]=='-'||realNumber[0]=='+')){
+            return false;
+        }
+        return true;
+    }
