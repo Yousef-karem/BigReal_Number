@@ -18,6 +18,7 @@ public:
     bool operator< (BigReal_Number anotherReal);
     bool operator> (BigReal_Number anotherReal);
     bool operator== (BigReal_Number anotherReal);
+friend ostream &operator<<(ostream&out,BigReal_Number n);
 
 
 };
