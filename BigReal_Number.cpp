@@ -179,3 +179,35 @@ bool BigReal_Number::operator==(BigReal_Number anotherReal) {
     num.sign=sign;
     return(compare(num,anotherReal)==0);
 }
+ostream &operator<<(ostream&out,BigReal_Number n){
+        // Print the sign.
+        if(n.sign){
+            cout<<'+';
+        } else{
+            cout<<'-';
+        }
+        // delete zeros from the beginning of  integer .
+        int i = 1;
+        while (i < n.Integer.size() && n.Integer[i] == '0') {
+            i++;
+        }
+        out << n.Integer.substr(i);
+
+        // if we have a decimal part print the decimal point.
+        if (!n.Decimal.empty()) {
+            out << ".";
+        }
+
+        // delete zeros from the end of the decimal part.
+        int k = n.Decimal.length() - 1;
+        while (k>= 0 && n.Decimal[k] == '0') {
+            k--;
+        }
+
+        // Print the Decimal part.
+        out << n.Decimal.substr(0, k + 1);
+        out<<'\n';
+
+        return out;
+
+}
