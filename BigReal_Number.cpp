@@ -2,22 +2,60 @@
 BigReal_Number::BigReal_Number()
 {
     Integer="0";
-    Decimal="0";
+    Decimal="";
     sign=true;
+}
+BigReal_Number BigReal_Number::abs(BigReal_Number tmp) {
+    tmp.sign=1;
+    return tmp;
 }
 BigReal_Number::BigReal_Number(string s) {
     if(isValidReal ( s))
     {
-        int sz=s.size();
-        auto dotPos=find(s.begin(),s.end(),'.')-s.begin();
-        Integer= s.substr(0,dotPos);
-        Decimal=s.substr(s.find('.')+1);
+        if(find(s.begin(),s.end(),'.')==s.end())
+        {
+            int start=!isdigit(s[0]);
+            Integer=s.substr(start);
+            Decimal="";
+            sign=(s[0]=='+'|| isdigit(s[0]));
+            return;
+        }
+        if(s[0]=='.')
+        {
+            Integer="0";
+            Decimal=s.substr(1);
+            sign=true;
+            return;
+        }
+        else if(!isdigit(s[0])&&s[1]=='.')
+        {
+            Integer="0";
+            Decimal=s.substr(2);
+            sign=(s[0]=='+');
+            return;
+        }
+        int dotPos=find(s.begin(),s.end(),'.')-s.begin();
+        int start=!isdigit(s[0]);
+        Integer= s.substr(start,dotPos);
+        reverse(Integer.begin(),Integer.end());
+        // delete zeros from the beginning of  integer .
+        while(!Integer.size()>1&&Integer.back()=='0')
+        {
+            Integer.pop_back();
+        }
+        reverse(Integer.begin(),Integer.end());
+        Decimal=s.substr(dotPos+1);
+        // delete zeros from the end of the decimal part.
+        while(!Decimal.empty()&&Decimal.back()=='0')
+        {
+           Decimal.pop_back();
+        }
         sign=(s[0]=='+'|| isdigit(s[0]));
     }
     else
     {
-        (cout<<"The Value is not Valid");
-        return;
+        cout<<"The Value is not Valid\n";
+        throw invalid_argument(("The Value is not Valid\n"));
     }
 
 }
@@ -61,105 +99,46 @@ bool BigReal_Number::operator<(BigReal_Number anotherReal) {
 }
 
 int BigReal_Number::compare(BigReal_Number Real1, BigReal_Number Real2) {
-    BigReal_Number num;
-    int size1,size2,size11,size22;
-    size1=(Real1.Integer).size();//size of integer part of 1st
-    size2=(Real2.Integer).size();//size of integer part of 2st
-    size11=(Real1.Decimal).size();//size of decimal part of 1st
-    size22=(Real2.Decimal).size();//size of decimal part of 2st
-    bool done =1;
-    if(Real1.sign&&!Real2.sign){
-        //1st is +ve & 2nd is -ve
-        num=1;
-        done= 0 ;
-    }else if(!Real1.sign&&Real2.sign){
-       // 1st is -ve & 2nd is +ve
-        num=2;
-        done=0 ;
-    }else if(Real1.sign&&(size1!=size2)){
-        //both are +ve
-        if(size1>size2){
-            //integer part of 1st is graeter
-            num =1;
-            done=0;
-        }else if(size2>size1){
-            //integer part of 2st is graeter
-            num =2;
-            done=0;
-        }
-    }else if(!Real1.sign&&size1!=size2){
-        //both are -ve
-        if(size1>size2){
-            //integer part of 1st is graeter
-            num =2;
-            done=0;
-        }else if(size2>size1){
-            //integer part of 2st is graeter
-            num =1;
-            done= 0;
-        }
-    }else {
-        //integer part of both are equal in length
-        if(size11>size22){
-            int dif=size11-size22;
-            for(int i=0;i<dif;i++){
-                Real2.Decimal+='0';
-            }
-        }else if(size22>size11){
-            int dif =size22-size11;
-            for (int i = 0; i < dif; ++i) {
-                Real1.Decimal+='0';
-            }
+    if(Real1.sign!=Real2.sign)
+    {
+        return (Real1.sign?1:2);
+    }
+    int szINT1=Real1.Integer.size(),szINT2=Real2.Integer.size();
+    int szDecimal1=Real1.Decimal.size(),szDecimal2=Real2.Decimal.size();
+    if (szINT1!=szINT2)
+    {
+        if(sign)
+            return ((szINT1>szINT2) ?1:2);
+        else
+            return ((szINT1>szINT2) ?2:1);
+    }
+    for (int i = 0; i < szINT1; ++i)
+    {
+        if(Real1.Integer[i]!=Real2.Integer[i])
+        {
+            if(sign)
+                return ((Real1.Integer[i]>Real2.Integer[i]) ?1:2);
+            else
+                return ((Real1.Integer[i]>Real2.Integer[i]) ?2:1);
         }
     }
-    if( done){
-        for (int i = 0; i < size1; ++i) {
-            if((Real1.Integer[i]-'0')!=(Real2.Integer[i]-'0')){
-                if((Real1.Integer[i]-'0')>(Real2.Integer[i]-'0')){
-                    if(Real1.sign){
-                    num=1;}
-                    else {
-                        num=2;
-                    }
-                    done=0;
-                    break;
-                }else {
-                    if(Real2.sign){
-                    num=2;}
-                    else {
-                        num=1;
-                    }
-                    done=0;
-                    break;
-                }
-            }
-        }
-   for (int i = 0; i < size11; ++i) {
-            if((Real1.Decimal[i]-'0')!=(Real2.Decimal[i]-'0')){
-                if((Real1.Decimal[i]-'0')>(Real2.Decimal[i]-'0')){
-                    if(Real1.sign){
-                    num=1;}
-                    else {
-                        num=2;
-                    }
-                    done=0;
-                    break;
-                }else {
-                    if(Real2.sign){
-                    num=2;}
-                    else {
-                        num=1;
-                    }
-                    done=0;
-                    break;
-                }
-            }
+    for (int i = 0; i < szDecimal1; ++i)
+    {
+        if(Real1.Decimal[i]!=Real2.Decimal[i])
+        {
+            if(sign)
+                return ((Real1.Decimal[i]>Real2.Decimal[i]) ?1:2);
+            else
+                return ((Real1.Decimal[i]>Real2.Decimal[i]) ?2:1);
         }
     }
-    if( done){
-        num=0;
+    if (szDecimal1!=szDecimal2)
+    {
+        if(sign)
+            return ((szDecimal1>szDecimal2) ?1:2);
+        else
+            return ((szDecimal1>szDecimal2) ?2:1);
     }
-
     return 0;
 }
 
@@ -181,33 +160,110 @@ bool BigReal_Number::operator==(BigReal_Number anotherReal) {
 }
 ostream &operator<<(ostream&out,BigReal_Number n){
         // Print the sign.
-        if(n.sign){
-            cout<<'+';
-        } else{
+        if(!n.sign){
             cout<<'-';
         }
-        // delete zeros from the beginning of  integer .
-        int i = 1;
-        while (i < n.Integer.size() && n.Integer[i] == '0') {
-            i++;
-        }
-        out << n.Integer.substr(i);
-
+        out << n.Integer;
         // if we have a decimal part print the decimal point.
         if (!n.Decimal.empty()) {
             out << ".";
         }
-
-        // delete zeros from the end of the decimal part.
-        int k = n.Decimal.length() - 1;
-        while (k>= 0 && n.Decimal[k] == '0') {
-            k--;
-        }
-
+        out<<n.Decimal;
         // Print the Decimal part.
-        out << n.Decimal.substr(0, k + 1);
-        out<<'\n';
-
         return out;
 
 }
+
+BigReal_Number BigReal_Number::operator+(BigReal_Number other) {
+    BigReal_Number result;
+    if (other.sign!=sign)
+    {
+        BigReal_Number num;
+        num.Integer=Integer,num.sign=sign;num.Decimal=Decimal;
+        result= abs(num)-abs(other);
+
+        result.sign=!(other.sign)?1:0;
+        return result;
+
+    }
+    int remaining=0;
+    pair<string,int>tmp=add(Decimal,other.Decimal,remaining);
+    result.Decimal=tmp.first;
+    remaining=tmp.second;
+    tmp=add(Integer,other.Integer,remaining);
+    result.Integer=tmp.first;
+    remaining=tmp.second;
+    if(remaining)
+    {
+        int val=remaining+(result.Integer[0]-'0');
+        result.Integer= to_string(val)+result.Integer;
+    }
+    result.sign=sign;
+    return result;
+}
+
+pair<string, int> BigReal_Number::add(string num1, string num2, int remaining) {
+    string result;
+    int i = num1.length() - 1;
+    int j = num2.length() - 1;
+    while (i >= 0 || j >= 0) {
+        int digit1 = (i >= 0) ? num1[i] - '0' : 0;
+        int digit2 = (j >= 0) ? num2[j] - '0' : 0;
+        int sum = digit1 + digit2 + remaining;
+        remaining = sum / 10;
+        result += to_string(sum % 10);
+        i--,j--;
+    }
+    reverse(result.begin(), result.end());
+    return {result, remaining};
+}
+
+pair<string, int> BigReal_Number::subtract(string num1, string num2, int remaining)  {
+    std::string result;
+    if(num1<num2)
+        swap(num1,num2);
+    int i = num1.length() - 1;
+    int j = num2.length() - 1;
+    while (i >= 0 || j >= 0 || remaining > 0) {
+        int digit1 = (i >= 0) ? num1[i] - '0' : 0;
+        int digit2 = (j >= 0) ? num2[j] - '0' : 0;
+        int diff = digit1 - digit2 - remaining;
+        if (diff < 0) {
+            diff += 10;
+            remaining = 1;
+        } else {
+            remaining = 0;
+        }
+        result += std::to_string(diff);
+        i--,j--;
+    }
+    std::reverse(result.begin(), result.end());
+    return std::make_pair(result, remaining);
+}
+
+BigReal_Number BigReal_Number::operator-(BigReal_Number other) {
+    BigReal_Number result,num;
+    num.Integer=Integer,num.sign=sign;num.Decimal=Decimal;
+    if(sign!=other.sign)
+    {
+        result= abs(num)+abs(other);
+        result.sign=((abs(num)>abs(other))?!sign:sign);
+        return result;
+    }
+    int remaining=0;
+    pair<string,int>tmp=subtract(Decimal,other.Decimal,remaining);
+    result.Decimal=tmp.first;
+    remaining=tmp.second;
+    tmp=subtract(Integer,other.Integer,remaining);
+    result.Integer=tmp.first;
+    remaining=tmp.second;
+    if(remaining)
+        result.Integer=to_string(remaining)+result.Integer;
+    num.sign=other.sign=1;
+    result.sign=((num>other)?sign:!sign);
+    return result;
+}
+
+
+
+
