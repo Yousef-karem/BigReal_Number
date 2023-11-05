@@ -175,6 +175,7 @@ ostream &operator<<(ostream&out,BigReal_Number n){
 }
 
 BigReal_Number BigReal_Number::operator+(BigReal_Number other) {
+
     BigReal_Number result;
     if (other.sign!=sign)
     {
@@ -185,6 +186,22 @@ BigReal_Number BigReal_Number::operator+(BigReal_Number other) {
         result.sign=!(other.sign)?1:0;
         return result;
 
+    }
+    if(Decimal.size()>other.Decimal.size())
+    {
+        other.Decimal=other.Decimal+string(Decimal.size()-other.Decimal.size(),'0');
+    }
+    else
+    {
+        Decimal=Decimal+string(other.Decimal.size()-Decimal.size(),'0');
+    }
+    if(Integer.size()>other.Integer.size())
+    {
+        other.Integer=string(Integer.size()-other.Integer.size(),'0')+other.Integer;
+    }
+    else
+    {
+        Integer=string(other.Integer.size()-Integer.size(),'0')+Integer;
     }
     int remaining=0;
     pair<string,int>tmp=add(Decimal,other.Decimal,remaining);
@@ -218,32 +235,45 @@ pair<string, int> BigReal_Number::add(string num1, string num2, int remaining) {
     return {result, remaining};
 }
 
-pair<string, int> BigReal_Number::subtract(string num1, string num2, int remaining)  {
-    std::string result;
+string BigReal_Number::subtract(string num1, string num2)  {
+    string result;
     if(num1<num2)
         swap(num1,num2);
     int i = num1.length() - 1;
     int j = num2.length() - 1;
-    while (i >= 0 || j >= 0 || remaining > 0) {
+    while (i >= 0 || j >= 0 ) {
         int digit1 = (i >= 0) ? num1[i] - '0' : 0;
         int digit2 = (j >= 0) ? num2[j] - '0' : 0;
-        int diff = digit1 - digit2 - remaining;
+        int diff = digit1 - digit2 ;
         if (diff < 0) {
             diff += 10;
-            remaining = 1;
-        } else {
-            remaining = 0;
         }
         result += std::to_string(diff);
         i--,j--;
     }
-    std::reverse(result.begin(), result.end());
-    return std::make_pair(result, remaining);
+    reverse(result.begin(), result.end());
+    return result;
 }
 
 BigReal_Number BigReal_Number::operator-(BigReal_Number other) {
     BigReal_Number result,num;
     num.Integer=Integer,num.sign=sign;num.Decimal=Decimal;
+    if(num.Decimal.size()>other.Decimal.size())
+    {
+        other.Decimal=other.Decimal+string(num.Decimal.size()-other.Decimal.size(),'0');
+    }
+    else
+    {
+        num.Decimal=other.Decimal+string(other.Decimal.size()-num.Decimal.size(),'0');
+    }
+    if(num.Integer.size()>other.Integer.size())
+    {
+        other.Integer=string(num.Integer.size()-other.Integer.size(),'0')+other.Integer;
+    }
+    else
+    {
+        num.Integer=string(other.Integer.size()-num.Integer.size(),'0')+num.Integer;
+    }
     if(sign!=other.sign)
     {
         result= abs(num)+abs(other);
@@ -251,19 +281,8 @@ BigReal_Number BigReal_Number::operator-(BigReal_Number other) {
         return result;
     }
     int remaining=0;
-    pair<string,int>tmp=subtract(Decimal,other.Decimal,remaining);
-    result.Decimal=tmp.first;
-    remaining=tmp.second;
-    tmp=subtract(Integer,other.Integer,remaining);
-    result.Integer=tmp.first;
-    remaining=tmp.second;
-    if(remaining)
-        result.Integer=to_string(remaining)+result.Integer;
-    num.sign=other.sign=1;
-    result.sign=((num>other)?sign:!sign);
+    result.Decimal=subtract(Decimal,other.Decimal);
+    result.Integer=subtract(Integer,other.Integer);
+    result.sign=((abs(num)>abs(other))?sign:!sign);
     return result;
 }
-
-
-
-

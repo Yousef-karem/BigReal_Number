@@ -9,9 +9,10 @@ private:
     //Compare Two strings and return 3 values
     // 1 for (Real1 > Real2) ,2 for (Real1 < Real2),0 for (Real1 == Real2)
     int compare(BigReal_Number Real1,BigReal_Number Real2);
-    //two Functions to add or subtract two strings and return the value and the remaining value
+    // Function to add two strings and return the value and the remaining value
     pair<string,int> add(string num1,string num2,int remaining);
-    pair<string, int> subtract(string num1, string num2, int remaining);
+    //Function to subtract Two digit strings and return the result t
+    string subtract(string num1, string num2);
 public:
     string Integer;
     string Decimal;
