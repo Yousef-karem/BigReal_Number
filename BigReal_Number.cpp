@@ -122,7 +122,7 @@ int BigReal_Number::compare(BigReal_Number Real1, BigReal_Number Real2) {
                 return ((Real1.Integer[i]>Real2.Integer[i]) ?2:1);
         }
     }
-    for (int i = 0; i < szDecimal1; ++i)
+    for (int i = 0; i < min(szDecimal1,szDecimal2); ++i)
     {
         if(Real1.Decimal[i]!=Real2.Decimal[i])
         {
